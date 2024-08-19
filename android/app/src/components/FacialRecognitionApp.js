@@ -4,7 +4,7 @@ import { Camera, useCameraDevice, useCameraPermission } from 'react-native-visio
 
 const App = () => {
   const { hasPermission, requestPermission } = useCameraPermission();
-  const device = useCameraDevice('back');
+  const device = useCameraDevice('front');
 
   // Request camera permission
   const handleRequestPermission = async () => {
@@ -51,11 +51,11 @@ const App = () => {
         device={device}
         isActive={true}
       />
-      <Button
+      {/* <Button
         title="Close Camera"
         onPress={() => Alert.alert('Camera', 'Close button pressed')} // Adjust based on your logic
         style={styles.button}
-      />
+      /> */}
     </View>
   );
 };
