@@ -1,33 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Text, Button, Alert } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useCameraPermission, useFrameProcessor } from 'react-native-vision-camera';
+import { firebase } from '@react-native-firebase/app';
+import ml from '@react-native-firebase/ml';
+import { firebaseConfig } from '../../../../firebaseConfig'; // Update the path if necessary
 
 const App = () => {
-  const { hasPermission, requestPermission } = useCameraPermission();
+  const [hasPermission, setHasPermission] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const [faces, setFaces] = useState([]);
+  const cameraRef = useRef(null);
+
+  const { hasPermission: permissionStatus, requestPermission } = useCameraPermission();
   const device = useCameraDevice('front');
+
+  // Initialize Firebase if not done already
+  useEffect(() => {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  }, []);
 
   // Request camera permission
   const handleRequestPermission = async () => {
     const granted = await requestPermission();
-    if (granted) {
-      console.log('Camera permission granted.');
+    setHasPermission(granted === 'authorized');
+    if (granted === 'authorized') {
+      setCameraVisible(true);
     } else {
       Alert.alert('Permission Denied', 'Camera permission is required to use this feature.');
-      console.log('Camera permission denied.');
     }
   };
 
-  // Open camera logic
-  const handleOpenCamera = () => {
-    if (hasPermission) {
-      console.log('Camera view should be visible now.');
-    } else {
-      Alert.alert('Permission Denied', 'Please grant camera permission first.');
-      console.log('Camera permission not granted.');
+  // Frame Processor Function
+  const frameProcessor = useFrameProcessor(async (frame) => {
+    try {
+      const faces = await ml().faceDetectorProcessImage(frame.toArrayBuffer());
+      setFaces(faces);
+      if (faces.length > 0) {
+        console.log(`Detected ${faces.length} face(s)`);
+      }
+    } catch (error) {
+      console.error('Face detection error:', error);
     }
-  };
+  }, []);
 
-  if (!hasPermission) {
+  if (!hasPermission && !cameraVisible) {
     return (
       <View style={styles.container}>
         <Text>Permission Denied</Text>
@@ -46,16 +64,43 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-      />
-      {/* <Button
-        title="Close Camera"
-        onPress={() => Alert.alert('Camera', 'Close button pressed')} // Adjust based on your logic
-        style={styles.button}
-      /> */}
+      {cameraVisible && (
+        <>
+          <Camera
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={true}
+            ref={cameraRef}
+            frameProcessor={frameProcessor} // Ensure this is correctly used
+          />
+          <Button
+            title="Close Camera"
+            onPress={() => setCameraVisible(false)}
+            style={styles.button}
+          />
+          {faces.map((face, index) => (
+            <View
+              key={index}
+              style={[
+                styles.faceBox,
+                {
+                  left: face.bounds.origin.x,
+                  top: face.bounds.origin.y,
+                  width: face.bounds.size.width,
+                  height: face.bounds.size.height,
+                },
+              ]}
+            />
+          ))}
+        </>
+      )}
+      {!cameraVisible && hasPermission && (
+        <Button
+          title="Open Camera"
+          onPress={() => setCameraVisible(true)}
+          style={styles.button}
+        />
+      )}
     </View>
   );
 };
@@ -72,6 +117,11 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     right: 20,
+  },
+  faceBox: {
+    borderColor: 'red',
+    borderWidth: 2,
+    position: 'absolute',
   },
 });
 
