@@ -1,7 +1,7 @@
 import firebase from "@react-native-firebase/app";
 
 const firebaseConfig = {
-  apiKey:"AIzaSyDPZ0AviblbsX6BY79-xebM9AB__G0zB24",
+  apiKey:"",
   authDomain: "facialrecon-fe331.firebaseapp.com",
   projectId: "facialrecon-fe331",
   storageBucket: "facialrecon-fe331.appspot.com",
