@@ -7,7 +7,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "",
+        "mobilesdk_app_id": "1:446504906532:android:ae3fb598d9394afd84cdb1",
+        "android_client_info": {
+          "package_name": "com.company.facerecon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPZ0AviblbsX6BY79-xebM9AB__G0zB24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446504906532:android:f170dd4f10dbbe9d84cdb1",
         "android_client_info": {
           "package_name": "com.testmobile"
         }
@@ -15,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": ""
+          "current_key": "AIzaSyDPZ0AviblbsX6BY79-xebM9AB__G0zB24"
         }
       ],
       "services": {
